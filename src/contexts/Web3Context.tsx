@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { BrowserProvider, Contract, JsonRpcSigner } from 'ethers';
-import { useToast } from '@/components/ui/use-toast';
+import { BrowserProvider, Contract, JsonRpcSigner, parseEther, parseUnits } from 'ethers';
+import { useToast } from '@/hooks/use-toast';
 
 interface Web3ContextType {
   connect: () => Promise<void>;
@@ -37,11 +37,34 @@ export function Web3Provider({ children }: { children: React.ReactNode }) {
     try {
       setIsConnecting(true);
       const provider = new BrowserProvider(window.ethereum);
+      
+      // Request network switch to Sepolia
+      try {
+        await window.ethereum.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: '0xaa36a7' }], // Chain ID for Sepolia in hex
+        });
+      } catch (switchError: any) {
+        // If the network doesn't exist, add it
+        if (switchError.code === 4902) {
+          await window.ethereum.request({
+            method: 'wallet_addEthereumChain',
+            params: [{
+              chainId: '0xaa36a7',
+              chainName: 'Sepolia',
+              nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
+              rpcUrls: ['https://sepolia.infura.io/v3/'],
+              blockExplorerUrls: ['https://sepolia.etherscan.io'],
+            }],
+          });
+        }
+      }
+
       const accounts = await provider.send("eth_requestAccounts", []);
       setAccount(accounts[0]);
       toast({
         title: "Connected!",
-        description: "Successfully connected to MetaMask",
+        description: "Successfully connected to MetaMask on Sepolia network",
       });
     } catch (error) {
       console.error("Connection error:", error);
@@ -79,7 +102,10 @@ export function Web3Provider({ children }: { children: React.ReactNode }) {
       const signer = await provider.getSigner();
       const contract = new Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
 
-      const tx = await contract.buyTokensWithETH({ value: amount });
+      // Convert ETH amount to Wei
+      const valueInWei = parseEther(amount);
+      
+      const tx = await contract.buyTokensWithETH({ value: valueInWei });
       await tx.wait();
 
       toast({
@@ -114,7 +140,10 @@ export function Web3Provider({ children }: { children: React.ReactNode }) {
       const signer = await provider.getSigner();
       const contract = new Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
 
-      const tx = await contract.buyTokensWithUSDT(amount);
+      // Convert USDT amount to Wei (USDT has 6 decimals)
+      const amountInWei = parseUnits(amount, 6);
+      
+      const tx = await contract.buyTokensWithUSDT(amountInWei);
       await tx.wait();
 
       toast({
