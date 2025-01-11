@@ -86,6 +86,64 @@ export function Web3Provider({ children }: { children: React.ReactNode }) {
     });
   };
 
+  const handleAccountsChanged = (accounts: string[]) => {
+    if (accounts.length === 0) {
+      // User disconnected their wallet
+      disconnect();
+      toast({
+        title: "Wallet Disconnected",
+        description: "Please connect your wallet to continue",
+        variant: "destructive",
+      });
+    } else if (accounts[0] !== account) {
+      // Account changed
+      setAccount(accounts[0]);
+      toast({
+        title: "Account Changed",
+        description: "Wallet account has been changed",
+      });
+    }
+  };
+
+  const handleChainChanged = () => {
+    // MetaMask recommends reloading the page on chain changes
+    window.location.reload();
+  };
+
+  const handleDisconnect = () => {
+    disconnect();
+    toast({
+      title: "Wallet Disconnected",
+      description: "Please connect your wallet to continue",
+      variant: "destructive",
+    });
+  };
+
+  useEffect(() => {
+    if (window.ethereum) {
+      // Setup event listeners
+      window.ethereum.on("accountsChanged", handleAccountsChanged);
+      window.ethereum.on("chainChanged", handleChainChanged);
+      window.ethereum.on("disconnect", handleDisconnect);
+
+      // Check if already connected
+      window.ethereum.request({ method: 'eth_accounts' })
+        .then((accounts: string[]) => {
+          if (accounts.length > 0) {
+            setAccount(accounts[0]);
+          }
+        })
+        .catch(console.error);
+
+      // Cleanup listeners
+      return () => {
+        window.ethereum.removeListener("accountsChanged", handleAccountsChanged);
+        window.ethereum.removeListener("chainChanged", handleChainChanged);
+        window.ethereum.removeListener("disconnect", handleDisconnect);
+      };
+    }
+  }, []);
+
   const buyTokensWithETH = async (amount: string) => {
     if (!window.ethereum || !account) {
       toast({
@@ -161,20 +219,6 @@ export function Web3Provider({ children }: { children: React.ReactNode }) {
       setIsLoading(false);
     }
   };
-
-  useEffect(() => {
-    if (window.ethereum) {
-      window.ethereum.on("accountsChanged", (accounts: string[]) => {
-        setAccount(accounts[0] || null);
-      });
-    }
-
-    return () => {
-      if (window.ethereum) {
-        window.ethereum.removeListener("accountsChanged", () => {});
-      }
-    };
-  }, []);
 
   return (
     <Web3Context.Provider
