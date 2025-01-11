@@ -7,24 +7,16 @@ interface Web3ContextType {
   disconnect: () => void;
   account: string | null;
   isConnecting: boolean;
-  buyToken: () => Promise<void>;
+  buyTokensWithETH: (amount: string) => Promise<void>;
+  buyTokensWithUSDT: (amount: string) => Promise<void>;
   isLoading: boolean;
 }
 
 const Web3Context = createContext<Web3ContextType | null>(null);
 
-// Example ABI for the buy function
-const CONTRACT_ABI = [
-  {
-    "inputs": [],
-    "name": "buy",
-    "outputs": [],
-    "stateMutability": "payable",
-    "type": "function"
-  }
-];
+const CONTRACT_ABI = [{"inputs":[{"internalType":"address","name":"initialOwner","type":"address"},{"internalType":"address","name":"_tokenAddress","type":"address"},{"internalType":"address","name":"_usdtAddress","type":"address"},{"internalType":"uint256","name":"_tokenPriceUSDTinWei","type":"uint256"},{"internalType":"uint256","name":"_hardCap","type":"uint256"},{"internalType":"uint256","name":"_startTime","type":"uint256"},{"internalType":"uint256","name":"_endTime","type":"uint256"}],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[{"internalType":"address","name":"owner","type":"address"}],"name":"OwnableInvalidOwner","type":"error"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"OwnableUnauthorizedAccount","type":"error"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"owner","type":"address"},{"indexed":false,"internalType":"uint256","name":"tokensUnsold","type":"uint256"}],"name":"ICOEnded","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"previousOwner","type":"address"},{"indexed":true,"internalType":"address","name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"buyer","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"},{"indexed":false,"internalType":"string","name":"paymentMethod","type":"string"}],"name":"TokensPurchased","type":"event"},{"inputs":[{"internalType":"uint256","name":"TokenPriceInUSDT","type":"uint256"}],"name":"GetTokenPriceInWeiForETH","outputs":[{"internalType":"uint256","name":"priceInWei","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"buyTokensWithETH","outputs":[],"stateMutability":"payable","type":"function"},{"inputs":[{"internalType":"uint256","name":"usdtAmount","type":"uint256"}],"name":"buyTokensWithUSDT","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"decimals","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"endICO","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"endTime","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getLatestPrice","outputs":[{"internalType":"int256","name":"","type":"int256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"hardCap","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"renounceOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"startTime","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"token","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"tokenPriceUSDTinWei","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"tokensSold","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"usdt","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"}];
 
-const CONTRACT_ADDRESS = "YOUR_CONTRACT_ADDRESS"; // Replace with your contract address
+const CONTRACT_ADDRESS = "YOUR_CONTRACT_ADDRESS";
 
 export function Web3Provider({ children }: { children: React.ReactNode }) {
   const [account, setAccount] = useState<string | null>(null);
@@ -71,7 +63,7 @@ export function Web3Provider({ children }: { children: React.ReactNode }) {
     });
   };
 
-  const buyToken = async () => {
+  const buyTokensWithETH = async (amount: string) => {
     if (!window.ethereum || !account) {
       toast({
         title: "Not connected",
@@ -87,18 +79,53 @@ export function Web3Provider({ children }: { children: React.ReactNode }) {
       const signer = await provider.getSigner();
       const contract = new Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
 
-      const tx = await contract.buy({ value: "10000000000000000" }); // 0.01 ETH
+      const tx = await contract.buyTokensWithETH({ value: amount });
       await tx.wait();
 
       toast({
         title: "Success!",
-        description: "Transaction completed successfully",
+        description: "Successfully purchased tokens with ETH",
       });
     } catch (error) {
       console.error("Buy error:", error);
       toast({
         title: "Transaction failed",
-        description: "Failed to complete the purchase",
+        description: "Failed to complete the purchase with ETH",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const buyTokensWithUSDT = async (amount: string) => {
+    if (!window.ethereum || !account) {
+      toast({
+        title: "Not connected",
+        description: "Please connect your wallet first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const provider = new BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const contract = new Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+
+      const tx = await contract.buyTokensWithUSDT(amount);
+      await tx.wait();
+
+      toast({
+        title: "Success!",
+        description: "Successfully purchased tokens with USDT",
+      });
+    } catch (error) {
+      console.error("Buy error:", error);
+      toast({
+        title: "Transaction failed",
+        description: "Failed to complete the purchase with USDT",
         variant: "destructive",
       });
     } finally {
@@ -127,7 +154,8 @@ export function Web3Provider({ children }: { children: React.ReactNode }) {
         disconnect,
         account,
         isConnecting,
-        buyToken,
+        buyTokensWithETH,
+        buyTokensWithUSDT,
         isLoading,
       }}
     >

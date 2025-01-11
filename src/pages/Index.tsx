@@ -1,22 +1,26 @@
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useWeb3 } from "@/contexts/Web3Context";
 import { Loader2 } from "lucide-react";
+import { useState } from "react";
 
 const Index = () => {
-  const { connect, disconnect, account, isConnecting, buyToken, isLoading } = useWeb3();
+  const { connect, disconnect, account, isConnecting, buyTokensWithETH, buyTokensWithUSDT, isLoading } = useWeb3();
+  const [ethAmount, setEthAmount] = useState("");
+  const [usdtAmount, setUsdtAmount] = useState("");
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 flex items-center justify-center p-4">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
-          <h1 className="text-4xl font-bold text-web3-accent mb-2">Web3 DApp</h1>
-          <p className="text-gray-600">Connect your wallet and start interacting with the blockchain</p>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Web3 DApp</h1>
+          <p className="text-gray-600">Connect your wallet and purchase tokens</p>
         </div>
 
         <div className="bg-white rounded-xl shadow-lg p-6 space-y-6">
           {!account ? (
             <Button
-              className="w-full bg-web3-primary hover:bg-web3-accent text-white"
+              className="w-full"
               onClick={connect}
               disabled={isConnecting}
             >
@@ -36,20 +40,55 @@ const Index = () => {
                 <p className="font-mono text-sm truncate">{account}</p>
               </div>
               
-              <Button
-                className="w-full bg-web3-primary hover:bg-web3-accent text-white"
-                onClick={buyToken}
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Processing...
-                  </>
-                ) : (
-                  "Buy Token"
-                )}
-              </Button>
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-gray-700">Buy with ETH</p>
+                <div className="flex gap-2">
+                  <Input
+                    type="text"
+                    placeholder="Amount in ETH"
+                    value={ethAmount}
+                    onChange={(e) => setEthAmount(e.target.value)}
+                  />
+                  <Button
+                    onClick={() => buyTokensWithETH(ethAmount)}
+                    disabled={isLoading || !ethAmount}
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Buying...
+                      </>
+                    ) : (
+                      "Buy with ETH"
+                    )}
+                  </Button>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-gray-700">Buy with USDT</p>
+                <div className="flex gap-2">
+                  <Input
+                    type="text"
+                    placeholder="Amount in USDT"
+                    value={usdtAmount}
+                    onChange={(e) => setUsdtAmount(e.target.value)}
+                  />
+                  <Button
+                    onClick={() => buyTokensWithUSDT(usdtAmount)}
+                    disabled={isLoading || !usdtAmount}
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Buying...
+                      </>
+                    ) : (
+                      "Buy with USDT"
+                    )}
+                  </Button>
+                </div>
+              </div>
 
               <Button
                 variant="outline"
