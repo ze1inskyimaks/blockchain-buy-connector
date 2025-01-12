@@ -122,19 +122,14 @@ export function Web3Provider({ children }: { children: React.ReactNode }) {
     if (accounts.length === 0) {
       disconnect();
       setShowReconnectDialog(true);
-    } else if (accounts[0] !== account) {
-      // Verify network before accepting new account
-      const isCorrectNetwork = await checkNetwork();
-      if (!isCorrectNetwork) {
-        disconnect();
-        setShowReconnectDialog(true);
-        return;
-      }
-      
-      setAccount(accounts[0]);
+    } else {
+      // Always disconnect when accounts change, regardless of previous state
+      disconnect();
+      setShowReconnectDialog(true);
       toast({
         title: "Account Changed",
-        description: "Wallet account has been changed",
+        description: "Please reconnect with the new account",
+        variant: "destructive",
       });
     }
   };
