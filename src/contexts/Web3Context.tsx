@@ -26,6 +26,7 @@ const Web3Context = createContext<Web3ContextType | null>(null);
 const CONTRACT_ABI = [{"inputs":[{"internalType":"address","name":"initialOwner","type":"address"},{"internalType":"address","name":"_tokenAddress","type":"address"},{"internalType":"address","name":"_usdtAddress","type":"address"},{"internalType":"uint256","name":"_tokenPriceUSDTinWei","type":"uint256"},{"internalType":"uint256","name":"_hardCap","type":"uint256"},{"internalType":"uint256","name":"_startTime","type":"uint256"},{"internalType":"uint256","name":"_endTime","type":"uint256"}],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[{"internalType":"address","name":"owner","type":"address"}],"name":"OwnableInvalidOwner","type":"error"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"OwnableUnauthorizedAccount","type":"error"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"owner","type":"address"},{"indexed":false,"internalType":"uint256","name":"tokensUnsold","type":"uint256"}],"name":"ICOEnded","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"previousOwner","type":"address"},{"indexed":true,"internalType":"address","name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"buyer","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"},{"indexed":false,"internalType":"string","name":"paymentMethod","type":"string"}],"name":"TokensPurchased","type":"event"},{"inputs":[{"internalType":"uint256","name":"TokenPriceInUSDT","type":"uint256"}],"name":"GetTokenPriceInWeiForETH","outputs":[{"internalType":"uint256","name":"priceInWei","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"buyTokensWithETH","outputs":[],"stateMutability":"payable","type":"function"},{"inputs":[{"internalType":"uint256","name":"usdtAmount","type":"uint256"}],"name":"buyTokensWithUSDT","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"decimals","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"endICO","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"endTime","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getLatestPrice","outputs":[{"internalType":"int256","name":"","type":"int256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"hardCap","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"renounceOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"startTime","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"token","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"tokenPriceUSDTinWei","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"tokensSold","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"usdt","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"}];
 
 const CONTRACT_ADDRESS = "0x0488F8b7Fd2F2F601f3fc2BBC6C0486E71B8109c";
+const REQUIRED_CHAIN_ID = '0xaa36a7'; // Sepolia network
 
 export function Web3Provider({ children }: { children: React.ReactNode }) {
   const [account, setAccount] = useState<string | null>(null);
@@ -33,6 +34,22 @@ export function Web3Provider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(false);
   const [showReconnectDialog, setShowReconnectDialog] = useState(false);
   const { toast } = useToast();
+
+  const checkNetwork = async () => {
+    if (!window.ethereum) return false;
+    
+    const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+    if (chainId !== REQUIRED_CHAIN_ID) {
+      disconnect();
+      toast({
+        title: "Wrong Network",
+        description: "Please connect to Sepolia network",
+        variant: "destructive",
+      });
+      return false;
+    }
+    return true;
+  };
 
   const connect = async () => {
     if (!window.ethereum) {
@@ -51,14 +68,14 @@ export function Web3Provider({ children }: { children: React.ReactNode }) {
       try {
         await window.ethereum.request({
           method: 'wallet_switchEthereumChain',
-          params: [{ chainId: '0xaa36a7' }],
+          params: [{ chainId: REQUIRED_CHAIN_ID }],
         });
       } catch (switchError: any) {
         if (switchError.code === 4902) {
           await window.ethereum.request({
             method: 'wallet_addEthereumChain',
             params: [{
-              chainId: '0xaa36a7',
+              chainId: REQUIRED_CHAIN_ID,
               chainName: 'Sepolia',
               nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
               rpcUrls: ['https://sepolia.infura.io/v3/'],
@@ -66,6 +83,12 @@ export function Web3Provider({ children }: { children: React.ReactNode }) {
             }],
           });
         }
+      }
+
+      const isCorrectNetwork = await checkNetwork();
+      if (!isCorrectNetwork) {
+        setIsConnecting(false);
+        return;
       }
 
       const accounts = await provider.send("eth_requestAccounts", []);
@@ -95,11 +118,19 @@ export function Web3Provider({ children }: { children: React.ReactNode }) {
     });
   };
 
-  const handleAccountsChanged = (accounts: string[]) => {
+  const handleAccountsChanged = async (accounts: string[]) => {
     if (accounts.length === 0) {
       disconnect();
       setShowReconnectDialog(true);
     } else if (accounts[0] !== account) {
+      // Verify network before accepting new account
+      const isCorrectNetwork = await checkNetwork();
+      if (!isCorrectNetwork) {
+        disconnect();
+        setShowReconnectDialog(true);
+        return;
+      }
+      
       setAccount(accounts[0]);
       toast({
         title: "Account Changed",
@@ -108,8 +139,16 @@ export function Web3Provider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const handleChainChanged = () => {
-    window.location.reload();
+  const handleChainChanged = async (chainId: string) => {
+    if (chainId !== REQUIRED_CHAIN_ID) {
+      disconnect();
+      setShowReconnectDialog(true);
+      toast({
+        title: "Network Changed",
+        description: "Please connect to Sepolia network",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleDisconnect = () => {
@@ -123,13 +162,19 @@ export function Web3Provider({ children }: { children: React.ReactNode }) {
       window.ethereum.on("chainChanged", handleChainChanged);
       window.ethereum.on("disconnect", handleDisconnect);
 
-      window.ethereum.request({ method: 'eth_accounts' })
-        .then((accounts: string[]) => {
-          if (accounts.length > 0) {
-            setAccount(accounts[0]);
-          }
-        })
-        .catch(console.error);
+      // Initial checks
+      Promise.all([
+        window.ethereum.request({ method: 'eth_chainId' }),
+        window.ethereum.request({ method: 'eth_accounts' })
+      ]).then(([chainId, accounts]) => {
+        if (chainId !== REQUIRED_CHAIN_ID) {
+          disconnect();
+          return;
+        }
+        if (accounts.length > 0) {
+          setAccount(accounts[0]);
+        }
+      }).catch(console.error);
 
       return () => {
         window.ethereum.removeListener("accountsChanged", handleAccountsChanged);
