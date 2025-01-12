@@ -1,6 +1,15 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { BrowserProvider, Contract, JsonRpcSigner, parseEther, parseUnits } from 'ethers';
+import { BrowserProvider, Contract, parseEther, parseUnits } from 'ethers';
 import { useToast } from '@/hooks/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface Web3ContextType {
   connect: () => Promise<void>;
@@ -22,6 +31,7 @@ export function Web3Provider({ children }: { children: React.ReactNode }) {
   const [account, setAccount] = useState<string | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showReconnectDialog, setShowReconnectDialog] = useState(false);
   const { toast } = useToast();
 
   const connect = async () => {
@@ -38,14 +48,12 @@ export function Web3Provider({ children }: { children: React.ReactNode }) {
       setIsConnecting(true);
       const provider = new BrowserProvider(window.ethereum);
       
-      // Request network switch to Sepolia
       try {
         await window.ethereum.request({
           method: 'wallet_switchEthereumChain',
-          params: [{ chainId: '0xaa36a7' }], // Chain ID for Sepolia in hex
+          params: [{ chainId: '0xaa36a7' }],
         });
       } catch (switchError: any) {
-        // If the network doesn't exist, add it
         if (switchError.code === 4902) {
           await window.ethereum.request({
             method: 'wallet_addEthereumChain',
@@ -62,6 +70,7 @@ export function Web3Provider({ children }: { children: React.ReactNode }) {
 
       const accounts = await provider.send("eth_requestAccounts", []);
       setAccount(accounts[0]);
+      setShowReconnectDialog(false);
       toast({
         title: "Connected!",
         description: "Successfully connected to MetaMask on Sepolia network",
@@ -88,15 +97,9 @@ export function Web3Provider({ children }: { children: React.ReactNode }) {
 
   const handleAccountsChanged = (accounts: string[]) => {
     if (accounts.length === 0) {
-      // User disconnected their wallet
       disconnect();
-      toast({
-        title: "Wallet Disconnected",
-        description: "Please connect your wallet to continue",
-        variant: "destructive",
-      });
+      setShowReconnectDialog(true);
     } else if (accounts[0] !== account) {
-      // Account changed
       setAccount(accounts[0]);
       toast({
         title: "Account Changed",
@@ -106,27 +109,20 @@ export function Web3Provider({ children }: { children: React.ReactNode }) {
   };
 
   const handleChainChanged = () => {
-    // MetaMask recommends reloading the page on chain changes
     window.location.reload();
   };
 
   const handleDisconnect = () => {
     disconnect();
-    toast({
-      title: "Wallet Disconnected",
-      description: "Please connect your wallet to continue",
-      variant: "destructive",
-    });
+    setShowReconnectDialog(true);
   };
 
   useEffect(() => {
     if (window.ethereum) {
-      // Setup event listeners
       window.ethereum.on("accountsChanged", handleAccountsChanged);
       window.ethereum.on("chainChanged", handleChainChanged);
       window.ethereum.on("disconnect", handleDisconnect);
 
-      // Check if already connected
       window.ethereum.request({ method: 'eth_accounts' })
         .then((accounts: string[]) => {
           if (accounts.length > 0) {
@@ -135,7 +131,6 @@ export function Web3Provider({ children }: { children: React.ReactNode }) {
         })
         .catch(console.error);
 
-      // Cleanup listeners
       return () => {
         window.ethereum.removeListener("accountsChanged", handleAccountsChanged);
         window.ethereum.removeListener("chainChanged", handleChainChanged);
@@ -160,7 +155,6 @@ export function Web3Provider({ children }: { children: React.ReactNode }) {
       const signer = await provider.getSigner();
       const contract = new Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
 
-      // Convert ETH amount to Wei
       const valueInWei = parseEther(amount);
       
       const tx = await contract.buyTokensWithETH({ value: valueInWei });
@@ -198,7 +192,6 @@ export function Web3Provider({ children }: { children: React.ReactNode }) {
       const signer = await provider.getSigner();
       const contract = new Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
 
-      // Convert USDT amount to Wei (USDT has 6 decimals)
       const amountInWei = parseUnits(amount, 6);
       
       const tx = await contract.buyTokensWithUSDT(amountInWei);
@@ -232,6 +225,21 @@ export function Web3Provider({ children }: { children: React.ReactNode }) {
         isLoading,
       }}
     >
+      <AlertDialog open={showReconnectDialog} onOpenChange={setShowReconnectDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Wallet Disconnected</AlertDialogTitle>
+            <AlertDialogDescription>
+              Your wallet has been disconnected. Would you like to reconnect?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={connect}>
+              Reconnect Wallet
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       {children}
     </Web3Context.Provider>
   );
