@@ -79,7 +79,7 @@ const CONTRACT_ABI = [
   {
     "inputs": [],
     "name": "tokenPriceUSDT",
-    "outputs": [{"internalType": "uint256","name": "","type": "uint256"}],
+    "outputs": [{"internalType":"uint256","name":"","type": "uint256"}],
     "stateMutability": "view",
     "type": "function"
   }
@@ -88,9 +88,10 @@ const CONTRACT_ABI = [
 const getErrorMessage = (error: any): string => {
   console.error("Full blockchain error:", error);
   
-  // Отримуємо повний текст помилки
-  const errorData = error.data?.message || error.message || error.reason || "Unknown error";
-  return `Blockchain error: ${errorData}`;
+  // Extract only the specific error message from "execution reverted"
+  const errorString = error.toString();
+  const match = errorString.match(/execution reverted: "([^"]+)"/);
+  return match ? match[1] : "Unknown error occurred";
 };
 
 export const useTokenPurchase = (account: string | null) => {
@@ -117,7 +118,7 @@ export const useTokenPurchase = (account: string | null) => {
 
   const buyTokensWithETH = useCallback(async (amount: string) => {
     if (!window.ethereum || !account) {
-      showToast("Не підключено", "Будь ласка, підключіть гаманець спочатку", "destructive");
+      showToast("Not connected", "Please connect your wallet first", "destructive");
       return;
     }
 
@@ -129,10 +130,10 @@ export const useTokenPurchase = (account: string | null) => {
       const tx = await contract.buyTokensWithETH({ value: valueInWei });
       await tx.wait();
 
-      showToast("Успіх!", "Токени успішно придбано за ETH");
+      showToast("Success!", "Tokens successfully purchased with ETH");
     } catch (error: any) {
       const errorMessage = getErrorMessage(error);
-      showToast("Помилка транзакції", errorMessage, "destructive");
+      showToast("Transaction Error", errorMessage, "destructive");
     } finally {
       setIsLoading(false);
     }
@@ -140,7 +141,7 @@ export const useTokenPurchase = (account: string | null) => {
 
   const buyTokensWithUSDT = useCallback(async (amount: string) => {
     if (!window.ethereum || !account) {
-      showToast("Не підключено", "Будь ласка, підключіть гаманець спочатку", "destructive");
+      showToast("Not connected", "Please connect your wallet first", "destructive");
       return;
     }
 
@@ -152,10 +153,10 @@ export const useTokenPurchase = (account: string | null) => {
       const tx = await contract.buyTokensWithUSDT(amountInWei);
       await tx.wait();
 
-      showToast("Успіх!", "Токени успішно придбано за USDT");
+      showToast("Success!", "Tokens successfully purchased with USDT");
     } catch (error: any) {
       const errorMessage = getErrorMessage(error);
-      showToast("Помилка транзакції", errorMessage, "destructive");
+      showToast("Transaction Error", errorMessage, "destructive");
     } finally {
       setIsLoading(false);
     }
