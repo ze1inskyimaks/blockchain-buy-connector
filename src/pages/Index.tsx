@@ -7,7 +7,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 
 const Index = () => {
-  const { connect, disconnect, account, isConnecting, buyTokensWithETH, buyTokensWithUSDT, isLoading } = useWeb3();
+  const { connect, disconnect, account, isConnecting, buyTokensWithETH, buyTokensWithUSDT, isLoading, tokenPrice } = useWeb3();
   const [amount, setAmount] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("eth");
 
@@ -25,6 +25,11 @@ const Index = () => {
         <div className="text-center">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">Web3 DApp</h1>
           <p className="text-gray-600">Connect your wallet and purchase tokens</p>
+          {tokenPrice && (
+            <p className="text-lg font-semibold text-green-600 mt-2">
+              Token Price: ${tokenPrice} USDT
+            </p>
+          )}
         </div>
 
         <div className="bg-white rounded-xl shadow-lg p-6 space-y-6">
