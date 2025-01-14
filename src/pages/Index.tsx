@@ -11,14 +11,6 @@ const Index = () => {
   const [amount, setAmount] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("eth");
 
-  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    // Allow only numbers and one decimal point
-    if (value === '' || /^\d*\.?\d*$/.test(value)) {
-      setAmount(value);
-    }
-  };
-
   const handlePurchase = () => {
     if (paymentMethod === "eth") {
       buyTokensWithETH(amount);
@@ -71,7 +63,7 @@ const Index = () => {
                     type="text"
                     placeholder="Enter amount"
                     value={amount}
-                    onChange={handleAmountChange}
+                    onChange={(e) => setAmount(e.target.value)}
                     className="mt-1"
                   />
                 </div>

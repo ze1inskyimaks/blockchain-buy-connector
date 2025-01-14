@@ -104,14 +104,13 @@ export const useTokenPurchase = (account: string | null) => {
     return new Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
   }, []);
 
-  // Function to fetch token price
+  // Функція для отримання ціни токена
   const fetchTokenPrice = useCallback(async () => {
     try {
       const contract = await getContract();
       const priceInWei = await contract.tokenPriceUSDT();
-      // Convert from wei (6 decimals for USDT) to USDT
-      const priceInUSDT = Number(priceInWei) / 10**6;
-      setTokenPrice(priceInUSDT.toString());
+      const priceInUSDT = formatUnits(priceInWei, 6); // USDT має 6 десяткових знаків
+      setTokenPrice(priceInUSDT);
     } catch (error) {
       console.error("Error fetching token price:", error);
     }
@@ -163,7 +162,7 @@ export const useTokenPurchase = (account: string | null) => {
     }
   }, [account, getContract]);
 
-  // Call fetchTokenPrice when account changes
+  // Викликаємо fetchTokenPrice при ініціалізації
   useCallback(() => {
     if (account) {
       fetchTokenPrice();
