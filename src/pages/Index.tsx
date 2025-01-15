@@ -13,9 +13,15 @@ const Index = () => {
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    // Allow only numbers and one decimal point
-    if (value === '' || /^\d*\.?\d*$/.test(value)) {
-      setAmount(value);
+    // Only allow numbers and one decimal point
+    // Prevent multiple decimal points and invalid characters
+    if (value === '' || (/^\d*\.?\d*$/.test(value) && (value.match(/\./g) || []).length <= 1)) {
+      // Don't allow starting with a decimal point
+      if (value === '.' || value.startsWith('.')) {
+        setAmount('0.');
+      } else {
+        setAmount(value);
+      }
     }
   };
 

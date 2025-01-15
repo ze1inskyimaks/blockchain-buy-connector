@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { Contract, parseEther, parseUnits, formatUnits } from 'ethers';
+import { Contract, parseEther, parseUnits } from 'ethers';
 import { getProvider, showToast } from '@/utils/web3Utils';
 
 const CONTRACT_ADDRESS = "0x145582396f98A8A99A03F863F66111D939F048B2";
@@ -108,7 +108,7 @@ export const useTokenPurchase = (account: string | null) => {
   const fetchTokenPrice = useCallback(async () => {
     try {
       const contract = await getContract();
-      const priceInWei = await contract.tokenPriceUSDT();
+      const priceInWei = await contract.tokenPriceUSDTinWei();
       // Convert from wei (6 decimals for USDT) to USDT
       const priceInUSDT = Number(priceInWei) / 10**6;
       setTokenPrice(priceInUSDT.toString());
