@@ -7,9 +7,11 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 
 const Index = () => {
-  const { connect, disconnect, account, isConnecting, buyTokensWithETH, buyTokensWithUSDT, isLoading, tokenPrice, estimatedTokens, calculateTokenAmount } = useWeb3();
+  const { connect, disconnect, account, isConnecting, buyTokensWithETH, buyTokensWithUSDT, isLoading, tokenPrice, estimatedTokens, estimatedPaymentAmount, calculateTokenAmount, calculatePaymentAmount } = useWeb3();
   const [amount, setAmount] = useState("");
+  const [tokenAmount, setTokenAmount] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("eth");
+  const [calculationMode, setCalculationMode] = useState<"payment" | "token">("payment");
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -19,19 +21,37 @@ const Index = () => {
       } else {
         setAmount(value);
       }
+      setCalculationMode("payment");
       calculateTokenAmount(value || '0', paymentMethod as 'eth' | 'usdt');
     }
   };
 
+  const handleTokenAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (value === '' || (/^\d*\.?\d*$/.test(value) && (value.match(/\./g) || []).length <= 1)) {
+      if (value === '.' || value.startsWith('.')) {
+        setTokenAmount('0.');
+      } else {
+        setTokenAmount(value);
+      }
+      setCalculationMode("token");
+      calculatePaymentAmount(value || '0', paymentMethod as 'eth' | 'usdt');
+    }
+  };
+
   useEffect(() => {
-    calculateTokenAmount(amount || '0', paymentMethod as 'eth' | 'usdt');
-  }, [paymentMethod, amount, calculateTokenAmount]);
+    if (calculationMode === "payment") {
+      calculateTokenAmount(amount || '0', paymentMethod as 'eth' | 'usdt');
+    } else {
+      calculatePaymentAmount(tokenAmount || '0', paymentMethod as 'eth' | 'usdt');
+    }
+  }, [paymentMethod, amount, tokenAmount, calculationMode, calculateTokenAmount, calculatePaymentAmount]);
 
   const handlePurchase = () => {
     if (paymentMethod === "eth") {
-      buyTokensWithETH(amount);
+      buyTokensWithETH(calculationMode === "payment" ? amount : estimatedPaymentAmount);
     } else {
-      buyTokensWithUSDT(amount);
+      buyTokensWithUSDT(calculationMode === "payment" ? amount : estimatedPaymentAmount);
     }
   };
 
@@ -73,20 +93,29 @@ const Index = () => {
               
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="amount">Amount</Label>
+                  <Label htmlFor="amount">Payment Amount ({paymentMethod.toUpperCase()})</Label>
                   <Input
                     id="amount"
                     type="text"
-                    placeholder="Enter amount"
-                    value={amount}
+                    placeholder={`Enter amount in ${paymentMethod.toUpperCase()}`}
+                    value={calculationMode === "payment" ? amount : estimatedPaymentAmount}
                     onChange={handleAmountChange}
                     className="mt-1"
+                    disabled={calculationMode === "token"}
                   />
-                  {estimatedTokens && Number(estimatedTokens) > 0 && (
-                    <p className="text-sm text-gray-600 mt-2">
-                      You will receive approximately: {estimatedTokens} Tokens
-                    </p>
-                  )}
+                </div>
+
+                <div>
+                  <Label htmlFor="tokenAmount">Token Amount</Label>
+                  <Input
+                    id="tokenAmount"
+                    type="text"
+                    placeholder="Enter token amount"
+                    value={calculationMode === "token" ? tokenAmount : estimatedTokens}
+                    onChange={handleTokenAmountChange}
+                    className="mt-1"
+                    disabled={calculationMode === "payment"}
+                  />
                 </div>
 
                 <div className="space-y-2">
@@ -110,7 +139,7 @@ const Index = () => {
                 <Button
                   className="w-full"
                   onClick={handlePurchase}
-                  disabled={isLoading || !amount}
+                  disabled={isLoading || (!amount && !tokenAmount)}
                 >
                   {isLoading ? (
                     <>

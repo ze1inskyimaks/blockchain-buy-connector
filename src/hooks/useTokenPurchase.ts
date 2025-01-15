@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { Contract, parseEther, parseUnits } from 'ethers';
 import { getProvider, showToast } from '@/utils/web3Utils';
 
-const CONTRACT_ADDRESS = "0xb670135169fe41d4bF4EE3F5D5EdD88BA416b172";
+const CONTRACT_ADDRESS = "0x19758F206CeE6a9D003CD5126Ff9672325561e27";
 const CONTRACT_ABI = [
   {
     "inputs": [
@@ -194,6 +194,7 @@ export const useTokenPurchase = (account: string | null) => {
   const [isLoading, setIsLoading] = useState(false);
   const [tokenPrice, setTokenPrice] = useState<string>('0');
   const [estimatedTokens, setEstimatedTokens] = useState<string>('0');
+  const [estimatedPaymentAmount, setEstimatedPaymentAmount] = useState<string>('0');
 
   const getContract = useCallback(async () => {
     const provider = getProvider();
@@ -226,16 +227,39 @@ export const useTokenPurchase = (account: string | null) => {
         const valueInWei = parseEther(amount);
         tokens = await contract.GetAmountOfTokenForETH(valueInWei);
       } else {
-        const valueInWei = parseUnits(amount, 6); // 6 decimals for USDT
+        const valueInWei = parseUnits(amount, 6);
         tokens = await contract.GetAmountOfTokenForUSDT(valueInWei);
       }
 
-      // Convert from wei to normal number (assuming 18 decimals for tokens)
       const estimatedAmount = Number(tokens) / 10**18;
       setEstimatedTokens(estimatedAmount.toString());
     } catch (error) {
       console.error("Error calculating token amount:", error);
       setEstimatedTokens('0');
+    }
+  }, [getContract]);
+
+  const calculatePaymentAmount = useCallback(async (tokenAmount: string, paymentMethod: 'eth' | 'usdt') => {
+    if (!tokenAmount || isNaN(Number(tokenAmount))) {
+      setEstimatedPaymentAmount('0');
+      return;
+    }
+
+    try {
+      const contract = await getContract();
+      let paymentAmount;
+      const tokenAmountWei = parseEther(tokenAmount);
+
+      if (paymentMethod === 'eth') {
+        paymentAmount = await contract.GetAmountOfETHForToken(tokenAmountWei);
+        setEstimatedPaymentAmount((Number(paymentAmount) / 10**18).toString());
+      } else {
+        paymentAmount = await contract.GetAmountOfUSDTForToken(tokenAmountWei);
+        setEstimatedPaymentAmount((Number(paymentAmount) / 10**6).toString());
+      }
+    } catch (error) {
+      console.error("Error calculating payment amount:", error);
+      setEstimatedPaymentAmount('0');
     }
   }, [getContract]);
 
@@ -296,9 +320,11 @@ export const useTokenPurchase = (account: string | null) => {
     isLoading,
     tokenPrice,
     estimatedTokens,
+    estimatedPaymentAmount,
     buyTokensWithETH,
     buyTokensWithUSDT,
     calculateTokenAmount,
+    calculatePaymentAmount,
     fetchTokenPrice
   };
 };
