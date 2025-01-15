@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { Contract, parseEther, parseUnits } from 'ethers';
 import { getProvider, showToast } from '@/utils/web3Utils';
 
-const CONTRACT_ADDRESS = "0x145582396f98A8A99A03F863F66111D939F048B2";
+const CONTRACT_ADDRESS = "0xb670135169fe41d4bF4EE3F5D5EdD88BA416b172";
 const CONTRACT_ABI = [
   {
     "inputs": [
@@ -56,6 +56,20 @@ const CONTRACT_ABI = [
     "type": "event"
   },
   {
+    "inputs": [{"internalType": "uint256", "name": "value", "type": "uint256"}],
+    "name": "GetAmountOfTokenForETH",
+    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "uint256", "name": "value", "type": "uint256"}],
+    "name": "GetAmountOfTokenForUSDT",
+    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [{"internalType": "uint256", "name": "TokenPriceInUSDT", "type": "uint256"}],
     "name": "GetTokenPriceInWeiForETH",
     "outputs": [{"internalType": "uint256", "name": "priceInWei", "type": "uint256"}],
@@ -78,8 +92,92 @@ const CONTRACT_ABI = [
   },
   {
     "inputs": [],
-    "name": "tokenPriceUSDT",
-    "outputs": [{"internalType":"uint256","name":"","type": "uint256"}],
+    "name": "tokenPriceUSDTinWei",
+    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "decimals",
+    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "endICO",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "endTime",
+    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getLatestPrice",
+    "outputs": [{"internalType": "int256", "name": "", "type": "int256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "hardCap",
+    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "owner",
+    "outputs": [{"internalType": "address", "name": "", "type": "address"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "renounceOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "startTime",
+    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "token",
+    "outputs": [{"internalType": "contract IERC20", "name": "", "type": "address"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "tokensSold",
+    "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{"internalType": "address", "name": "newOwner", "type": "address"}],
+    "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "usdt",
+    "outputs": [{"internalType": "contract IERC20", "name": "", "type": "address"}],
     "stateMutability": "view",
     "type": "function"
   }
