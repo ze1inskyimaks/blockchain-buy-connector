@@ -25,7 +25,7 @@ const Index = () => {
 
   useEffect(() => {
     calculateTokenAmount(amount || '0', paymentMethod as 'eth' | 'usdt');
-  }, [paymentMethod, calculateTokenAmount]);
+  }, [paymentMethod, amount, calculateTokenAmount]);
 
   const handlePurchase = () => {
     if (paymentMethod === "eth") {
