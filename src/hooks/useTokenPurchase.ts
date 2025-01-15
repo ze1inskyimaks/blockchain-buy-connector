@@ -185,8 +185,6 @@ const CONTRACT_ABI = [
 
 const getErrorMessage = (error: any): string => {
   console.error("Full blockchain error:", error);
-  
-  // Extract only the specific error message from "execution reverted"
   const errorString = error.toString();
   const match = errorString.match(/execution reverted: "([^"]+)"/);
   return match ? match[1] : "Unknown error occurred";
@@ -195,6 +193,7 @@ const getErrorMessage = (error: any): string => {
 export const useTokenPurchase = (account: string | null) => {
   const [isLoading, setIsLoading] = useState(false);
   const [tokenPrice, setTokenPrice] = useState<string>('0');
+  const [estimatedTokens, setEstimatedTokens] = useState<string>('0');
 
   const getContract = useCallback(async () => {
     const provider = getProvider();
@@ -202,16 +201,41 @@ export const useTokenPurchase = (account: string | null) => {
     return new Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
   }, []);
 
-  // Function to fetch token price
   const fetchTokenPrice = useCallback(async () => {
     try {
       const contract = await getContract();
       const priceInWei = await contract.tokenPriceUSDTinWei();
-      // Convert from wei (6 decimals for USDT) to USDT
       const priceInUSDT = Number(priceInWei) / 10**6;
       setTokenPrice(priceInUSDT.toString());
     } catch (error) {
       console.error("Error fetching token price:", error);
+    }
+  }, [getContract]);
+
+  const calculateTokenAmount = useCallback(async (amount: string, paymentMethod: 'eth' | 'usdt') => {
+    if (!amount || isNaN(Number(amount))) {
+      setEstimatedTokens('0');
+      return;
+    }
+
+    try {
+      const contract = await getContract();
+      let tokens;
+
+      if (paymentMethod === 'eth') {
+        const valueInWei = parseEther(amount);
+        tokens = await contract.GetAmountOfTokenForETH(valueInWei);
+      } else {
+        const valueInWei = parseUnits(amount, 6); // 6 decimals for USDT
+        tokens = await contract.GetAmountOfTokenForUSDT(valueInWei);
+      }
+
+      // Convert from wei to normal number (assuming 18 decimals for tokens)
+      const estimatedAmount = Number(tokens) / 10**18;
+      setEstimatedTokens(estimatedAmount.toString());
+    } catch (error) {
+      console.error("Error calculating token amount:", error);
+      setEstimatedTokens('0');
     }
   }, [getContract]);
 
@@ -271,7 +295,10 @@ export const useTokenPurchase = (account: string | null) => {
   return {
     isLoading,
     tokenPrice,
+    estimatedTokens,
     buyTokensWithETH,
-    buyTokensWithUSDT
+    buyTokensWithUSDT,
+    calculateTokenAmount,
+    fetchTokenPrice
   };
 };

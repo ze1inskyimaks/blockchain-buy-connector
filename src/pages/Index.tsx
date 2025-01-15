@@ -2,28 +2,30 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useWeb3 } from "@/contexts/Web3Context";
 import { Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 
 const Index = () => {
-  const { connect, disconnect, account, isConnecting, buyTokensWithETH, buyTokensWithUSDT, isLoading, tokenPrice } = useWeb3();
+  const { connect, disconnect, account, isConnecting, buyTokensWithETH, buyTokensWithUSDT, isLoading, tokenPrice, estimatedTokens, calculateTokenAmount } = useWeb3();
   const [amount, setAmount] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("eth");
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    // Only allow numbers and one decimal point
-    // Prevent multiple decimal points and invalid characters
     if (value === '' || (/^\d*\.?\d*$/.test(value) && (value.match(/\./g) || []).length <= 1)) {
-      // Don't allow starting with a decimal point
       if (value === '.' || value.startsWith('.')) {
         setAmount('0.');
       } else {
         setAmount(value);
       }
+      calculateTokenAmount(value || '0', paymentMethod as 'eth' | 'usdt');
     }
   };
+
+  useEffect(() => {
+    calculateTokenAmount(amount || '0', paymentMethod as 'eth' | 'usdt');
+  }, [paymentMethod, calculateTokenAmount]);
 
   const handlePurchase = () => {
     if (paymentMethod === "eth") {
@@ -80,6 +82,11 @@ const Index = () => {
                     onChange={handleAmountChange}
                     className="mt-1"
                   />
+                  {estimatedTokens && Number(estimatedTokens) > 0 && (
+                    <p className="text-sm text-gray-600 mt-2">
+                      You will receive approximately: {estimatedTokens} Tokens
+                    </p>
+                  )}
                 </div>
 
                 <div className="space-y-2">

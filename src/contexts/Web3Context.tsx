@@ -20,6 +20,8 @@ interface Web3ContextType {
   buyTokensWithUSDT: (amount: string) => Promise<void>;
   isLoading: boolean;
   tokenPrice: string;
+  estimatedTokens: string;
+  calculateTokenAmount: (amount: string, paymentMethod: 'eth' | 'usdt') => Promise<void>;
 }
 
 const Web3Context = createContext<Web3ContextType | null>(null);
@@ -36,7 +38,13 @@ export function Web3Provider({ children }: { children: React.ReactNode }) {
     handleChainChanged
   } = useWalletConnection();
 
-  const { isLoading, buyTokensWithETH, buyTokensWithUSDT, tokenPrice } = useTokenPurchase(account);
+  const { isLoading, buyTokensWithETH, buyTokensWithUSDT, tokenPrice, estimatedTokens, calculateTokenAmount, fetchTokenPrice } = useTokenPurchase(account);
+
+  useEffect(() => {
+    if (account) {
+      fetchTokenPrice();
+    }
+  }, [account, fetchTokenPrice]);
 
   useEffect(() => {
     if (window.ethereum) {
@@ -61,6 +69,8 @@ export function Web3Provider({ children }: { children: React.ReactNode }) {
         buyTokensWithUSDT,
         isLoading,
         tokenPrice,
+        estimatedTokens,
+        calculateTokenAmount,
       }}
     >
       <AlertDialog open={showReconnectDialog} onOpenChange={setShowReconnectDialog}>
