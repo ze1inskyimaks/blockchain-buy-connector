@@ -42,10 +42,10 @@ const Index = () => {
   };
 
   useEffect(() => {
-    if (calculationMode === "payment") {
-      calculateTokenAmount(amount || '0', paymentMethod as 'eth' | 'usdt');
-    } else {
-      calculatePaymentAmount(tokenAmount || '0', paymentMethod as 'eth' | 'usdt');
+    if (calculationMode === "payment" && amount) {
+      calculateTokenAmount(amount, paymentMethod as 'eth' | 'usdt');
+    } else if (calculationMode === "token" && tokenAmount) {
+      calculatePaymentAmount(tokenAmount, paymentMethod as 'eth' | 'usdt');
     }
   }, [paymentMethod, amount, tokenAmount, calculationMode, calculateTokenAmount, calculatePaymentAmount]);
 
