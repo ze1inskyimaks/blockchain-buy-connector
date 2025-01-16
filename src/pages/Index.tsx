@@ -104,6 +104,7 @@ const Index = () => {
                     value={calculationMode === "payment" ? amount : estimatedPaymentAmount}
                     onChange={handleAmountChange}
                     className="mt-1"
+                    readOnly={calculationMode === "token"}
                   />
                 </div>
 
@@ -116,6 +117,7 @@ const Index = () => {
                     value={calculationMode === "token" ? tokenAmount : estimatedTokens}
                     onChange={handleTokenAmountChange}
                     className="mt-1"
+                    readOnly={calculationMode === "payment"}
                   />
                 </div>
 
