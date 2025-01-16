@@ -233,6 +233,7 @@ export const useTokenPurchase = (account: string | null) => {
 
       const estimatedAmount = Number(tokens) / 10**18;
       setEstimatedTokens(estimatedAmount.toString());
+      setEstimatedPaymentAmount('');
     } catch (error) {
       console.error("Error calculating token amount:", error);
       setEstimatedTokens('0');
@@ -257,6 +258,7 @@ export const useTokenPurchase = (account: string | null) => {
         paymentAmount = await contract.GetAmountOfUSDTForToken(tokenAmountWei);
         setEstimatedPaymentAmount((Number(paymentAmount) / 10**6).toString());
       }
+      setEstimatedTokens('');
     } catch (error) {
       console.error("Error calculating payment amount:", error);
       setEstimatedPaymentAmount('0');
@@ -308,13 +310,6 @@ export const useTokenPurchase = (account: string | null) => {
       setIsLoading(false);
     }
   }, [account, getContract]);
-
-  // Call fetchTokenPrice when account changes
-  useCallback(() => {
-    if (account) {
-      fetchTokenPrice();
-    }
-  }, [account, fetchTokenPrice]);
 
   return {
     isLoading,

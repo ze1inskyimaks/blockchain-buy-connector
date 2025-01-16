@@ -23,6 +23,7 @@ const Index = () => {
       }
       setCalculationMode("payment");
       calculateTokenAmount(value || '0', paymentMethod as 'eth' | 'usdt');
+      setTokenAmount('');
     }
   };
 
@@ -36,6 +37,7 @@ const Index = () => {
       }
       setCalculationMode("token");
       calculatePaymentAmount(value || '0', paymentMethod as 'eth' | 'usdt');
+      setAmount('');
     }
   };
 
@@ -48,10 +50,11 @@ const Index = () => {
   }, [paymentMethod, amount, tokenAmount, calculationMode, calculateTokenAmount, calculatePaymentAmount]);
 
   const handlePurchase = () => {
+    const purchaseAmount = calculationMode === "payment" ? amount : estimatedPaymentAmount;
     if (paymentMethod === "eth") {
-      buyTokensWithETH(calculationMode === "payment" ? amount : estimatedPaymentAmount);
+      buyTokensWithETH(purchaseAmount);
     } else {
-      buyTokensWithUSDT(calculationMode === "payment" ? amount : estimatedPaymentAmount);
+      buyTokensWithUSDT(purchaseAmount);
     }
   };
 
