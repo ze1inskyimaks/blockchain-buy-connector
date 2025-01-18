@@ -46,11 +46,11 @@ export const useTokenCalculations = () => {
       let paymentAmount;
 
       if (paymentMethod === 'eth') {
-        paymentAmount = await contract.getAmountOfETHForToken(tokenAmountWei);
+        paymentAmount = await contract.GetAmountOfETHForToken(tokenAmountWei);
         const ethAmount = Number(paymentAmount) / 10**18;
         setEstimatedPaymentAmount(ethAmount.toString());
       } else {
-        paymentAmount = await contract.getAmountOfUSDTForToken(tokenAmountWei);
+        paymentAmount = await contract.GetAmountOfUSDTForToken(tokenAmountWei);
         const usdtAmount = Number(paymentAmount) / 10**6;
         setEstimatedPaymentAmount(usdtAmount.toString());
       }
