@@ -46,12 +46,17 @@ export const useTokenCalculations = () => {
       let paymentAmount;
 
       if (paymentMethod === 'eth') {
-        paymentAmount = await contract.GetAmountOfETHForToken(tokenAmountWei);
-        const ethAmount = Number(paymentAmount) / 10**18;
+        // Get token price in USDT first
+        const tokenPriceUSDT = await contract.tokenPriceUSDTinWei();
+        // Convert USDT price to ETH
+        paymentAmount = await contract.GetTokenPriceInWeiForETH(tokenPriceUSDT);
+        // Calculate final amount
+        const ethAmount = (Number(paymentAmount) * Number(tokenAmount)) / 10**18;
         setEstimatedPaymentAmount(ethAmount.toString());
       } else {
-        paymentAmount = await contract.GetAmountOfUSDTForToken(tokenAmountWei);
-        const usdtAmount = Number(paymentAmount) / 10**6;
+        // For USDT, we can use the direct token price
+        const tokenPriceUSDT = await contract.tokenPriceUSDTinWei();
+        const usdtAmount = (Number(tokenPriceUSDT) * Number(tokenAmount)) / 10**6;
         setEstimatedPaymentAmount(usdtAmount.toString());
       }
       setEstimatedTokens('');
