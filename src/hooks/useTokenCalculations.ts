@@ -42,7 +42,7 @@ export const useTokenCalculations = () => {
 
     try {
       const contract = await getContract();
-      const tokenAmountWei = parseEther(tokenAmount);
+      const tokenAmountWei = parseUnits(tokenAmount, 18);
       let paymentAmount;
 
       if (paymentMethod === 'eth') {
