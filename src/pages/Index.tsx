@@ -5,6 +5,7 @@ import { Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { ICOStatus } from "@/components/ICOStatus";
 
 const Index = () => {
   const { connect, disconnect, account, isConnecting, buyTokensWithETH, buyTokensWithUSDT, isLoading, tokenPrice, estimatedTokens, estimatedPaymentAmount, calculateTokenAmount, calculatePaymentAmount } = useWeb3();
@@ -70,6 +71,8 @@ const Index = () => {
             </p>
           )}
         </div>
+
+        <ICOStatus />
 
         <div className="bg-white rounded-xl shadow-lg p-6 space-y-6">
           {!account ? (
