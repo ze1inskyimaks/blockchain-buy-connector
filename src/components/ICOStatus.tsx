@@ -17,8 +17,8 @@ export const ICOStatus = () => {
         const contract = await getContract();
         const startTimeUnix = await contract.startTime();
         const endTimeUnix = await contract.endTime();
-        const totalSold = await contract.totalTokensSold();
-        const maxICOTokens = await contract.maxICOTokens();
+        const totalSold = await contract.tokensSold();
+        const maxICOTokens = await contract.hardCap();
 
         setStartTime(new Date(Number(startTimeUnix) * 1000));
         setEndTime(new Date(Number(endTimeUnix) * 1000));
