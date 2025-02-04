@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Progress } from "@/components/ui/progress";
 import { useContract } from "@/hooks/useContract";
+import { ExternalLink } from "lucide-react";
 
 export const ICOStatus = () => {
   const [startTime, setStartTime] = useState<Date | null>(null);
@@ -9,6 +10,7 @@ export const ICOStatus = () => {
   const [soldTokens, setSoldTokens] = useState<number>(0);
   const [maxTokens, setMaxTokens] = useState<number>(0);
   const [progress, setProgress] = useState<number>(0);
+  const [tokenAddress, setTokenAddress] = useState<string>("");
   const { getContract } = useContract();
 
   useEffect(() => {
@@ -19,11 +21,13 @@ export const ICOStatus = () => {
         const endTimeUnix = await contract.endTime();
         const totalSold = await contract.tokensSold();
         const maxICOTokens = await contract.hardCap();
+        const tokenContractAddress = await contract.token();
 
         setStartTime(new Date(Number(startTimeUnix) * 1000));
         setEndTime(new Date(Number(endTimeUnix) * 1000));
         setSoldTokens(Number(totalSold) / 10**18);
         setMaxTokens(Number(maxICOTokens) / 10**18);
+        setTokenAddress(tokenContractAddress);
         
         const soldPercentage = (Number(totalSold) / Number(maxICOTokens)) * 100;
         setProgress(Math.min(soldPercentage, 100));
@@ -73,6 +77,10 @@ export const ICOStatus = () => {
     return "ICO Active";
   };
 
+  const handleTokenAddressClick = () => {
+    window.open(`https://sepolia.etherscan.io/token/${tokenAddress}`, '_blank');
+  };
+
   return (
     <div className="space-y-6 bg-white p-6 rounded-lg shadow-md">
       <div className="text-center">
@@ -92,6 +100,13 @@ export const ICOStatus = () => {
           <span>{maxTokens.toLocaleString()} Max Tokens</span>
         </div>
       </div>
+
+      {tokenAddress && (
+        <div className="flex items-center justify-center space-x-2 text-sm text-blue-600 hover:text-blue-800 cursor-pointer" onClick={handleTokenAddressClick}>
+          <span>Token Address: {tokenAddress.slice(0, 6)}...{tokenAddress.slice(-4)}</span>
+          <ExternalLink size={16} />
+        </div>
+      )}
 
       {startTime && endTime && (
         <div className="text-sm text-gray-600 space-y-1">
