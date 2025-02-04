@@ -60,13 +60,13 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 flex items-start justify-start p-8">
+    <div className="min-h-screen bg-black bg-[url('/coin-bg.png')] bg-no-repeat bg-center bg-fixed bg-opacity-50 flex items-start justify-start p-8">
       <div className="max-w-4xl w-full space-y-8 ml-12">
         <div className="text-left">
-          <h1 className="text-4xl font-bold text-indigo-900 mb-2">Web3 DApp</h1>
-          <p className="text-indigo-600">Connect your wallet and purchase tokens</p>
+          <h1 className="text-4xl font-bold text-yellow-500 mb-2">Web3 DApp</h1>
+          <p className="text-yellow-400">Connect your wallet and purchase tokens</p>
           {tokenPrice && (
-            <p className="text-lg font-semibold text-green-600 mt-2">
+            <p className="text-lg font-semibold text-yellow-500 mt-2">
               Token Price: ${tokenPrice} USDT
             </p>
           )}
@@ -75,10 +75,10 @@ const Index = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <ICOStatus />
 
-          <div className="bg-white bg-opacity-80 backdrop-blur-sm rounded-xl shadow-lg p-6 space-y-6">
+          <div className="bg-black/80 backdrop-blur-sm rounded-xl shadow-lg p-6 space-y-6 border border-yellow-500">
             {!account ? (
               <Button
-                className="w-full bg-indigo-600 hover:bg-indigo-700"
+                className="w-full bg-yellow-500 hover:bg-yellow-600 text-black"
                 onClick={connect}
                 disabled={isConnecting}
               >
@@ -93,56 +93,56 @@ const Index = () => {
               </Button>
             ) : (
               <div className="space-y-6">
-                <div className="p-4 bg-indigo-50 rounded-lg">
-                  <p className="text-sm text-indigo-600">Connected Account:</p>
-                  <p className="font-mono text-sm truncate">{account}</p>
+                <div className="p-4 bg-yellow-900/50 rounded-lg">
+                  <p className="text-sm text-yellow-400">Connected Account:</p>
+                  <p className="font-mono text-sm truncate text-yellow-500">{account}</p>
                 </div>
                 
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="amount">Payment Amount ({paymentMethod.toUpperCase()})</Label>
+                    <Label htmlFor="amount" className="text-yellow-400">Payment Amount ({paymentMethod.toUpperCase()})</Label>
                     <Input
                       id="amount"
                       type="text"
                       placeholder={`Enter amount in ${paymentMethod.toUpperCase()}`}
                       value={calculationMode === "payment" ? amount : estimatedPaymentAmount}
                       onChange={handleAmountChange}
-                      className="mt-1"
+                      className="mt-1 bg-black/50 border-yellow-500 text-yellow-400 placeholder:text-yellow-900"
                     />
                   </div>
 
                   <div>
-                    <Label htmlFor="tokenAmount">Token Amount</Label>
+                    <Label htmlFor="tokenAmount" className="text-yellow-400">Token Amount</Label>
                     <Input
                       id="tokenAmount"
                       type="text"
                       placeholder="Enter token amount"
                       value={calculationMode === "token" ? tokenAmount : estimatedTokens}
                       onChange={handleTokenAmountChange}
-                      className="mt-1"
+                      className="mt-1 bg-black/50 border-yellow-500 text-yellow-400 placeholder:text-yellow-900"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label>Payment Method</Label>
+                    <Label className="text-yellow-400">Payment Method</Label>
                     <RadioGroup
                       value={paymentMethod}
                       onValueChange={setPaymentMethod}
                       className="flex gap-4"
                     >
                       <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="eth" id="eth" />
-                        <Label htmlFor="eth">ETH</Label>
+                        <RadioGroupItem value="eth" id="eth" className="border-yellow-500 text-yellow-500" />
+                        <Label htmlFor="eth" className="text-yellow-400">ETH</Label>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="usdt" id="usdt" />
-                        <Label htmlFor="usdt">USDT</Label>
+                        <RadioGroupItem value="usdt" id="usdt" className="border-yellow-500 text-yellow-500" />
+                        <Label htmlFor="usdt" className="text-yellow-400">USDT</Label>
                       </div>
                     </RadioGroup>
                   </div>
 
                   <Button
-                    className="w-full bg-indigo-600 hover:bg-indigo-700"
+                    className="w-full bg-yellow-500 hover:bg-yellow-600 text-black"
                     onClick={handlePurchase}
                     disabled={isLoading || (!amount && !tokenAmount)}
                   >
@@ -159,7 +159,7 @@ const Index = () => {
 
                 <Button
                   variant="outline"
-                  className="w-full border-indigo-200 hover:bg-indigo-50"
+                  className="w-full border-yellow-500 text-yellow-400 hover:bg-yellow-900/20"
                   onClick={disconnect}
                 >
                   Disconnect
