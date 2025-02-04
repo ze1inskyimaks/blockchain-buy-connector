@@ -60,13 +60,13 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-web3-accent via-web3-primary to-web3-secondary p-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-8">
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="text-center">
-          <h1 className="text-5xl font-bold text-white mb-4 tracking-tight">Web3 Token Sale</h1>
-          <p className="text-lg text-indigo-200">Secure your tokens in our exclusive ICO</p>
+          <h1 className="text-5xl font-bold text-yellow-400 mb-4 tracking-tight">Web3 Token Sale</h1>
+          <p className="text-lg text-gray-300">Secure your tokens in our exclusive ICO</p>
           {tokenPrice && (
-            <p className="text-xl font-semibold text-white mt-4 bg-web3-accent/20 inline-block px-6 py-2 rounded-full">
+            <p className="text-xl font-semibold text-white mt-4 bg-black/30 inline-block px-6 py-2 rounded-full border border-yellow-400/20">
               Token Price: ${tokenPrice} USDT
             </p>
           )}
@@ -75,10 +75,10 @@ const Index = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <ICOStatus />
 
-          <div className="bg-white/10 backdrop-blur-lg rounded-xl shadow-2xl p-6 space-y-6 border border-white/20">
+          <div className="backdrop-blur-lg bg-black/40 rounded-xl shadow-2xl p-6 space-y-6 border border-yellow-400/20">
             {!account ? (
               <Button
-                className="w-full bg-web3-accent hover:bg-web3-accent/90 text-white"
+                className="w-full bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold"
                 onClick={connect}
                 disabled={isConnecting}
               >
@@ -93,56 +93,56 @@ const Index = () => {
               </Button>
             ) : (
               <div className="space-y-6">
-                <div className="p-4 bg-white/5 rounded-lg">
-                  <p className="text-sm text-indigo-200">Connected Account:</p>
-                  <p className="font-mono text-sm truncate text-white">{account}</p>
+                <div className="p-4 bg-black/50 rounded-lg border border-yellow-400/20">
+                  <p className="text-sm text-gray-400">Connected Account:</p>
+                  <p className="font-mono text-sm truncate text-gray-200">{account}</p>
                 </div>
                 
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="amount" className="text-indigo-200">Payment Amount ({paymentMethod.toUpperCase()})</Label>
+                    <Label htmlFor="amount" className="text-gray-300">Payment Amount ({paymentMethod.toUpperCase()})</Label>
                     <Input
                       id="amount"
                       type="text"
                       placeholder={`Enter amount in ${paymentMethod.toUpperCase()}`}
                       value={calculationMode === "payment" ? amount : estimatedPaymentAmount}
                       onChange={handleAmountChange}
-                      className="mt-1 bg-white/5 border-white/20 text-white placeholder:text-indigo-300/50"
+                      className="mt-1 bg-black/30 border-yellow-400/20 text-gray-200 placeholder:text-gray-500"
                     />
                   </div>
 
                   <div>
-                    <Label htmlFor="tokenAmount" className="text-indigo-200">Token Amount</Label>
+                    <Label htmlFor="tokenAmount" className="text-gray-300">Token Amount</Label>
                     <Input
                       id="tokenAmount"
                       type="text"
                       placeholder="Enter token amount"
                       value={calculationMode === "token" ? tokenAmount : estimatedTokens}
                       onChange={handleTokenAmountChange}
-                      className="mt-1 bg-white/5 border-white/20 text-white placeholder:text-indigo-300/50"
+                      className="mt-1 bg-black/30 border-yellow-400/20 text-gray-200 placeholder:text-gray-500"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-indigo-200">Payment Method</Label>
+                    <Label className="text-gray-300">Payment Method</Label>
                     <RadioGroup
                       value={paymentMethod}
                       onValueChange={setPaymentMethod}
                       className="flex gap-4"
                     >
                       <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="eth" id="eth" className="border-indigo-400 text-indigo-400" />
-                        <Label htmlFor="eth" className="text-indigo-200">ETH</Label>
+                        <RadioGroupItem value="eth" id="eth" className="border-yellow-400 text-yellow-400" />
+                        <Label htmlFor="eth" className="text-gray-300">ETH</Label>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="usdt" id="usdt" className="border-indigo-400 text-indigo-400" />
-                        <Label htmlFor="usdt" className="text-indigo-200">USDT</Label>
+                        <RadioGroupItem value="usdt" id="usdt" className="border-yellow-400 text-yellow-400" />
+                        <Label htmlFor="usdt" className="text-gray-300">USDT</Label>
                       </div>
                     </RadioGroup>
                   </div>
 
                   <Button
-                    className="w-full bg-web3-accent hover:bg-web3-accent/90 text-white"
+                    className="w-full bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold"
                     onClick={handlePurchase}
                     disabled={isLoading || (!amount && !tokenAmount)}
                   >
@@ -159,7 +159,7 @@ const Index = () => {
 
                 <Button
                   variant="outline"
-                  className="w-full border-white/20 text-indigo-200 hover:bg-white/10"
+                  className="w-full border-yellow-400/20 text-gray-300 hover:bg-black/50"
                   onClick={disconnect}
                 >
                   Disconnect
