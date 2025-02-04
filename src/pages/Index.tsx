@@ -60,11 +60,11 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 flex items-center justify-center p-4">
-      <div className="max-w-md w-full space-y-8">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Web3 DApp</h1>
-          <p className="text-gray-600">Connect your wallet and purchase tokens</p>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 flex items-start justify-start p-8">
+      <div className="max-w-4xl w-full space-y-8 ml-12">
+        <div className="text-left">
+          <h1 className="text-4xl font-bold text-indigo-900 mb-2">Web3 DApp</h1>
+          <p className="text-indigo-600">Connect your wallet and purchase tokens</p>
           {tokenPrice && (
             <p className="text-lg font-semibold text-green-600 mt-2">
               Token Price: ${tokenPrice} USDT
@@ -72,99 +72,101 @@ const Index = () => {
           )}
         </div>
 
-        <ICOStatus />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <ICOStatus />
 
-        <div className="bg-white rounded-xl shadow-lg p-6 space-y-6">
-          {!account ? (
-            <Button
-              className="w-full"
-              onClick={connect}
-              disabled={isConnecting}
-            >
-              {isConnecting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Connecting...
-                </>
-              ) : (
-                "Connect Wallet"
-              )}
-            </Button>
-          ) : (
-            <div className="space-y-6">
-              <div className="p-4 bg-gray-50 rounded-lg">
-                <p className="text-sm text-gray-600">Connected Account:</p>
-                <p className="font-mono text-sm truncate">{account}</p>
-              </div>
-              
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="amount">Payment Amount ({paymentMethod.toUpperCase()})</Label>
-                  <Input
-                    id="amount"
-                    type="text"
-                    placeholder={`Enter amount in ${paymentMethod.toUpperCase()}`}
-                    value={calculationMode === "payment" ? amount : estimatedPaymentAmount}
-                    onChange={handleAmountChange}
-                    className="mt-1"
-                  />
+          <div className="bg-white bg-opacity-80 backdrop-blur-sm rounded-xl shadow-lg p-6 space-y-6">
+            {!account ? (
+              <Button
+                className="w-full bg-indigo-600 hover:bg-indigo-700"
+                onClick={connect}
+                disabled={isConnecting}
+              >
+                {isConnecting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Connecting...
+                  </>
+                ) : (
+                  "Connect Wallet"
+                )}
+              </Button>
+            ) : (
+              <div className="space-y-6">
+                <div className="p-4 bg-indigo-50 rounded-lg">
+                  <p className="text-sm text-indigo-600">Connected Account:</p>
+                  <p className="font-mono text-sm truncate">{account}</p>
                 </div>
+                
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="amount">Payment Amount ({paymentMethod.toUpperCase()})</Label>
+                    <Input
+                      id="amount"
+                      type="text"
+                      placeholder={`Enter amount in ${paymentMethod.toUpperCase()}`}
+                      value={calculationMode === "payment" ? amount : estimatedPaymentAmount}
+                      onChange={handleAmountChange}
+                      className="mt-1"
+                    />
+                  </div>
 
-                <div>
-                  <Label htmlFor="tokenAmount">Token Amount</Label>
-                  <Input
-                    id="tokenAmount"
-                    type="text"
-                    placeholder="Enter token amount"
-                    value={calculationMode === "token" ? tokenAmount : estimatedTokens}
-                    onChange={handleTokenAmountChange}
-                    className="mt-1"
-                  />
-                </div>
+                  <div>
+                    <Label htmlFor="tokenAmount">Token Amount</Label>
+                    <Input
+                      id="tokenAmount"
+                      type="text"
+                      placeholder="Enter token amount"
+                      value={calculationMode === "token" ? tokenAmount : estimatedTokens}
+                      onChange={handleTokenAmountChange}
+                      className="mt-1"
+                    />
+                  </div>
 
-                <div className="space-y-2">
-                  <Label>Payment Method</Label>
-                  <RadioGroup
-                    value={paymentMethod}
-                    onValueChange={setPaymentMethod}
-                    className="flex gap-4"
+                  <div className="space-y-2">
+                    <Label>Payment Method</Label>
+                    <RadioGroup
+                      value={paymentMethod}
+                      onValueChange={setPaymentMethod}
+                      className="flex gap-4"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="eth" id="eth" />
+                        <Label htmlFor="eth">ETH</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="usdt" id="usdt" />
+                        <Label htmlFor="usdt">USDT</Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+
+                  <Button
+                    className="w-full bg-indigo-600 hover:bg-indigo-700"
+                    onClick={handlePurchase}
+                    disabled={isLoading || (!amount && !tokenAmount)}
                   >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="eth" id="eth" />
-                      <Label htmlFor="eth">ETH</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="usdt" id="usdt" />
-                      <Label htmlFor="usdt">USDT</Label>
-                    </div>
-                  </RadioGroup>
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Processing...
+                      </>
+                    ) : (
+                      `Buy with ${paymentMethod.toUpperCase()}`
+                    )}
+                  </Button>
                 </div>
 
                 <Button
-                  className="w-full"
-                  onClick={handlePurchase}
-                  disabled={isLoading || (!amount && !tokenAmount)}
+                  variant="outline"
+                  className="w-full border-indigo-200 hover:bg-indigo-50"
+                  onClick={disconnect}
                 >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Processing...
-                    </>
-                  ) : (
-                    `Buy with ${paymentMethod.toUpperCase()}`
-                  )}
+                  Disconnect
                 </Button>
               </div>
-
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={disconnect}
-              >
-                Disconnect
-              </Button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </div>
