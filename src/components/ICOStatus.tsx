@@ -39,7 +39,7 @@ export const ICOStatus = () => {
     };
 
     fetchICOData();
-    const interval = setInterval(fetchICOData, 30000); // Update every 30 seconds
+    const interval = setInterval(fetchICOData, 30000);
 
     return () => clearInterval(interval);
   }, [getContract]);
@@ -100,34 +100,34 @@ export const ICOStatus = () => {
   };
 
   return (
-    <div className="space-y-6 bg-gradient-to-br from-purple-50 to-indigo-50 p-6 rounded-lg shadow-lg border border-purple-100">
+    <div className="backdrop-blur-lg bg-black/40 p-6 rounded-xl shadow-2xl border border-yellow-400/20">
       <div className="text-center">
-        <h2 className="text-2xl font-bold text-indigo-900 mb-2">ICO Status</h2>
-        <p className="text-lg font-semibold text-indigo-600">{getICOStatus()}</p>
-        <p className="text-xl font-bold text-purple-600 mt-2">{timeLeft}</p>
+        <h2 className="text-2xl font-bold text-yellow-400 mb-2">ICO Status</h2>
+        <p className="text-lg font-semibold text-gray-300">{getICOStatus()}</p>
+        <p className="text-xl font-bold text-white mt-2">{timeLeft}</p>
       </div>
 
-      <div className="space-y-2">
-        <div className="flex justify-between text-sm text-indigo-600">
+      <div className="space-y-2 mt-6">
+        <div className="flex justify-between text-sm text-gray-300">
           <span>Progress</span>
           <span>{progress.toFixed(2)}%</span>
         </div>
-        <Progress value={progress} className="h-2 bg-purple-100" indicatorClassName="bg-indigo-500" />
-        <div className="flex justify-between text-sm text-indigo-600">
+        <Progress value={progress} className="h-2 bg-black/30" />
+        <div className="flex justify-between text-sm text-gray-300">
           <span>{soldTokens.toLocaleString()} Tokens Sold</span>
           <span>{maxTokens.toLocaleString()} Max Tokens</span>
         </div>
       </div>
 
       {tokenAddress && (
-        <div className="flex flex-col items-center space-y-2">
-          <div className="flex items-center justify-center space-x-2 text-sm text-indigo-600 hover:text-indigo-800 cursor-pointer" onClick={handleTokenAddressClick}>
+        <div className="flex flex-col items-center space-y-2 mt-6">
+          <div className="flex items-center justify-center space-x-2 text-sm text-gray-300 hover:text-white cursor-pointer transition-colors" onClick={handleTokenAddressClick}>
             <span>Token Address: {tokenAddress.slice(0, 6)}...{tokenAddress.slice(-4)}</span>
             <ExternalLink size={16} />
           </div>
           <button
             onClick={copyToClipboard}
-            className="flex items-center space-x-1 px-3 py-1 text-sm text-indigo-600 hover:text-indigo-800 bg-white rounded-full shadow-sm hover:shadow transition-all duration-200"
+            className="flex items-center space-x-1 px-3 py-1 text-sm text-gray-300 hover:text-white bg-black/30 rounded-full shadow-sm hover:shadow transition-all duration-200 border border-yellow-400/20"
           >
             {copied ? <Check size={14} /> : <Copy size={14} />}
             <span>{copied ? 'Copied!' : 'Copy Address'}</span>
@@ -136,7 +136,7 @@ export const ICOStatus = () => {
       )}
 
       {startTime && endTime && (
-        <div className="text-sm text-indigo-600 space-y-1 text-center">
+        <div className="text-sm text-gray-300 space-y-1 text-center mt-6">
           <p>Start: {startTime.toLocaleString()}</p>
           <p>End: {endTime.toLocaleString()}</p>
         </div>
