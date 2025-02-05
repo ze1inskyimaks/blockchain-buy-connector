@@ -1,9 +1,10 @@
 import { useState, useCallback } from 'react';
-import { parseEther, parseUnits } from 'ethers';
+import { parseEther, parseUnits, Contract } from 'ethers';
 import { showToast } from '@/utils/web3Utils';
 import { useContract } from './useContract';
 import { useTokenCalculations } from './useTokenCalculations';
 import { getErrorMessage } from '@/utils/errorUtils';
+import { USDT_CONTRACT_ADDRESS, USDT_ABI } from '@/constants/contractConfig';
 
 export const useTokenPurchase = (account: string | null) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -50,6 +51,24 @@ export const useTokenPurchase = (account: string | null) => {
     }
   }, [account, getContract]);
 
+  const approveUSDT = async (amount: string, contract: Contract) => {
+    const usdtContract = new Contract(
+      USDT_CONTRACT_ADDRESS,
+      USDT_ABI,
+      await contract.runner.provider.getSigner()
+    );
+
+    const amountInWei = parseUnits(amount, 6);
+    const currentAllowance = await usdtContract.allowance(account, contract.target);
+
+    if (currentAllowance < amountInWei) {
+      showToast("Approval Required", "Please approve USDT spending", "default");
+      const approveTx = await usdtContract.approve(contract.target, amountInWei);
+      await approveTx.wait();
+      showToast("Success!", "USDT spending approved");
+    }
+  };
+
   const buyTokensWithUSDT = useCallback(async (amount: string) => {
     if (!window.ethereum || !account) {
       showToast("Not connected", "Please connect your wallet first", "destructive");
@@ -61,6 +80,10 @@ export const useTokenPurchase = (account: string | null) => {
       const contract = await getContract();
       const amountInWei = parseUnits(amount, 6);
       
+      // First approve USDT spending
+      await approveUSDT(amount, contract);
+      
+      // Then proceed with the purchase
       const tx = await contract.buyTokensWithUSDT(amountInWei);
       await tx.wait();
 

@@ -178,3 +178,10 @@ export const CONTRACT_ABI = [
     "type": "function"
   }
 ];
+
+export const USDT_CONTRACT_ADDRESS = "0x7169D38820dfd117C3FA1f22a697dBA58d90BA06"; // Sepolia USDT address
+
+export const USDT_ABI = [
+  "function approve(address spender, uint256 amount) external returns (bool)",
+  "function allowance(address owner, address spender) external view returns (uint256)"
+];
