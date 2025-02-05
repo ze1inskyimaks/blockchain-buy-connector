@@ -9,7 +9,8 @@ const ICOStatus = () => {
       <h2 className="text-xl font-semibold text-white">ICO Status</h2>
       <Progress 
         value={progress} 
-        className="h-2 bg-black/30 [&>div]:bg-yellow-400" 
+        className="h-2 bg-black/30" 
+        indicatorClassName="bg-yellow-400" 
       />
       <p className="text-gray-300 mt-2">Progress: {progress}%</p>
     </div>
