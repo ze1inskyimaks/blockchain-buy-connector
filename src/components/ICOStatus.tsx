@@ -112,7 +112,7 @@ export const ICOStatus = () => {
           <span>Progress</span>
           <span>{progress.toFixed(2)}%</span>
         </div>
-        <Progress value={progress} className="h-2 bg-black/30" />
+        <Progress value={progress} className="h-2 bg-black/30" indicatorClassName="bg-yellow-400" />
         <div className="flex justify-between text-sm text-gray-300">
           <span>{soldTokens.toLocaleString()} Tokens Sold</span>
           <span>{maxTokens.toLocaleString()} Max Tokens</span>
