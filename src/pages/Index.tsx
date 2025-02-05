@@ -5,7 +5,7 @@ import { Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { ICOStatus } from "@/components/ICOStatus";
+import ICOStatus from "@/components/ICOStatus";
 
 const Index = () => {
   const { connect, disconnect, account, isConnecting, buyTokensWithETH, buyTokensWithUSDT, isLoading, tokenPrice, estimatedTokens, estimatedPaymentAmount, calculateTokenAmount, calculatePaymentAmount } = useWeb3();
@@ -159,7 +159,7 @@ const Index = () => {
 
                 <Button
                   variant="outline"
-                  className="w-full border-yellow-400/20 text-gray-300 hover:bg-black/50"
+                  className="w-full border-gray-700 text-gray-500 hover:bg-gray-900/30 hover:text-gray-400 transition-colors"
                   onClick={disconnect}
                 >
                   Disconnect
