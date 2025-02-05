@@ -100,34 +100,34 @@ export const ICOStatus = () => {
   };
 
   return (
-    <div className="bg-white/10 backdrop-blur-lg p-6 rounded-xl shadow-2xl border border-white/20">
+    <div className="space-y-6 bg-black/80 p-6 rounded-lg shadow-lg border border-yellow-500">
       <div className="text-center">
-        <h2 className="text-2xl font-bold text-white mb-2">ICO Status</h2>
-        <p className="text-lg font-semibold text-indigo-200">{getICOStatus()}</p>
-        <p className="text-xl font-bold text-white mt-2">{timeLeft}</p>
+        <h2 className="text-2xl font-bold text-yellow-500 mb-2">ICO Status</h2>
+        <p className="text-lg font-semibold text-yellow-400">{getICOStatus()}</p>
+        <p className="text-xl font-bold text-yellow-500 mt-2">{timeLeft}</p>
       </div>
 
-      <div className="space-y-2 mt-6">
-        <div className="flex justify-between text-sm text-indigo-200">
+      <div className="space-y-2">
+        <div className="flex justify-between text-sm text-yellow-400">
           <span>Progress</span>
           <span>{progress.toFixed(2)}%</span>
         </div>
-        <Progress value={progress} className="h-2 bg-white/5" />
-        <div className="flex justify-between text-sm text-indigo-200">
+        <Progress value={progress} className="h-2 bg-yellow-900" />
+        <div className="flex justify-between text-sm text-yellow-400">
           <span>{soldTokens.toLocaleString()} Tokens Sold</span>
           <span>{maxTokens.toLocaleString()} Max Tokens</span>
         </div>
       </div>
 
       {tokenAddress && (
-        <div className="flex flex-col items-center space-y-2 mt-6">
-          <div className="flex items-center justify-center space-x-2 text-sm text-indigo-200 hover:text-white cursor-pointer transition-colors" onClick={handleTokenAddressClick}>
+        <div className="flex flex-col items-center space-y-2">
+          <div className="flex items-center justify-center space-x-2 text-sm text-yellow-400 hover:text-yellow-300 cursor-pointer" onClick={handleTokenAddressClick}>
             <span>Token Address: {tokenAddress.slice(0, 6)}...{tokenAddress.slice(-4)}</span>
             <ExternalLink size={16} />
           </div>
           <button
             onClick={copyToClipboard}
-            className="flex items-center space-x-1 px-3 py-1 text-sm text-indigo-200 hover:text-white bg-white/5 rounded-full shadow-sm hover:shadow transition-all duration-200 border border-white/20"
+            className="flex items-center space-x-1 px-3 py-1 text-sm text-yellow-400 hover:text-yellow-300 bg-black/50 rounded-full shadow-sm hover:shadow transition-all duration-200 border border-yellow-500"
           >
             {copied ? <Check size={14} /> : <Copy size={14} />}
             <span>{copied ? 'Copied!' : 'Copy Address'}</span>
@@ -136,7 +136,7 @@ export const ICOStatus = () => {
       )}
 
       {startTime && endTime && (
-        <div className="text-sm text-indigo-200 space-y-1 text-center mt-6">
+        <div className="text-sm text-yellow-400 space-y-1 text-center">
           <p>Start: {startTime.toLocaleString()}</p>
           <p>End: {endTime.toLocaleString()}</p>
         </div>
