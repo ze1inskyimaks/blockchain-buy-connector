@@ -159,7 +159,7 @@ const Index = () => {
 
                 <Button
                   variant="outline"
-                  className="w-full border border-red-500/50 text-red-400 hover:bg-red-950/30 hover:text-red-300 transition-colors"
+                  className="w-full border border-gray-700 text-gray-500 hover:bg-gray-900/30 hover:text-gray-400 transition-colors"
                   onClick={disconnect}
                 >
                   Disconnect
