@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { parseEther, parseUnits, Contract } from 'ethers';
+import { parseEther, parseUnits, Contract, Provider } from 'ethers';
 import { showToast } from '@/utils/web3Utils';
 import { useContract } from './useContract';
 import { useTokenCalculations } from './useTokenCalculations';
@@ -52,10 +52,13 @@ export const useTokenPurchase = (account: string | null) => {
   }, [account, getContract]);
 
   const approveUSDT = async (amount: string, contract: Contract) => {
+    const provider = contract.runner;
+    if (!provider) throw new Error("Provider not found");
+
     const usdtContract = new Contract(
       USDT_CONTRACT_ADDRESS,
       USDT_ABI,
-      await contract.runner.provider.getSigner()
+      provider
     );
 
     const amountInWei = parseUnits(amount, 6);
