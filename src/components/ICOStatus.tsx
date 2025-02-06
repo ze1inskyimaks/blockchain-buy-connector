@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Progress } from "@/components/ui/progress";
 import { useContract } from "@/hooks/useContract";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Copy, Check } from "lucide-react";
+import { toast } from "@/components/ui/use-toast";
 
 export const ICOStatus = () => {
   const [startTime, setStartTime] = useState<Date | null>(null);
@@ -11,6 +12,7 @@ export const ICOStatus = () => {
   const [maxTokens, setMaxTokens] = useState<number>(0);
   const [progress, setProgress] = useState<number>(0);
   const [tokenAddress, setTokenAddress] = useState<string>("");
+  const [copied, setCopied] = useState(false);
   const { getContract } = useContract();
 
   useEffect(() => {
@@ -81,35 +83,60 @@ export const ICOStatus = () => {
     window.open(`https://sepolia.etherscan.io/token/${tokenAddress}`, '_blank');
   };
 
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(tokenAddress);
+      setCopied(true);
+      toast({
+        description: "Token address copied to clipboard",
+      });
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      toast({
+        variant: "destructive",
+        description: "Failed to copy address",
+      });
+    }
+  };
+
   return (
-    <div className="space-y-6 bg-white p-6 rounded-lg shadow-md">
+    <div className="space-y-6 bg-gradient-to-br from-purple-50 to-indigo-50 p-6 rounded-lg shadow-lg border border-purple-100">
       <div className="text-center">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">ICO Status</h2>
-        <p className="text-lg font-semibold text-blue-600">{getICOStatus()}</p>
+        <h2 className="text-2xl font-bold text-indigo-900 mb-2">ICO Status</h2>
+        <p className="text-lg font-semibold text-indigo-600">{getICOStatus()}</p>
         <p className="text-xl font-bold text-purple-600 mt-2">{timeLeft}</p>
       </div>
 
       <div className="space-y-2">
-        <div className="flex justify-between text-sm text-gray-600">
+        <div className="flex justify-between text-sm text-indigo-600">
           <span>Progress</span>
           <span>{progress.toFixed(2)}%</span>
         </div>
-        <Progress value={progress} className="h-2" />
-        <div className="flex justify-between text-sm text-gray-600">
+        <Progress value={progress} className="h-2 bg-purple-100" indicatorClassName="bg-indigo-500" />
+        <div className="flex justify-between text-sm text-indigo-600">
           <span>{soldTokens.toLocaleString()} Tokens Sold</span>
           <span>{maxTokens.toLocaleString()} Max Tokens</span>
         </div>
       </div>
 
       {tokenAddress && (
-        <div className="flex items-center justify-center space-x-2 text-sm text-blue-600 hover:text-blue-800 cursor-pointer" onClick={handleTokenAddressClick}>
-          <span>Token Address: {tokenAddress.slice(0, 6)}...{tokenAddress.slice(-4)}</span>
-          <ExternalLink size={16} />
+        <div className="flex flex-col items-center space-y-2">
+          <div className="flex items-center justify-center space-x-2 text-sm text-indigo-600 hover:text-indigo-800 cursor-pointer" onClick={handleTokenAddressClick}>
+            <span>Token Address: {tokenAddress.slice(0, 6)}...{tokenAddress.slice(-4)}</span>
+            <ExternalLink size={16} />
+          </div>
+          <button
+            onClick={copyToClipboard}
+            className="flex items-center space-x-1 px-3 py-1 text-sm text-indigo-600 hover:text-indigo-800 bg-white rounded-full shadow-sm hover:shadow transition-all duration-200"
+          >
+            {copied ? <Check size={14} /> : <Copy size={14} />}
+            <span>{copied ? 'Copied!' : 'Copy Address'}</span>
+          </button>
         </div>
       )}
 
       {startTime && endTime && (
-        <div className="text-sm text-gray-600 space-y-1">
+        <div className="text-sm text-indigo-600 space-y-1 text-center">
           <p>Start: {startTime.toLocaleString()}</p>
           <p>End: {endTime.toLocaleString()}</p>
         </div>
