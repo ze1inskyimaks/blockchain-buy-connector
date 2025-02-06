@@ -1,7 +1,6 @@
 import { useState, useCallback } from 'react';
 import { parseEther, parseUnits } from 'ethers';
 import { useContract } from './useContract';
-import { toast } from "@/components/ui/use-toast";
 
 export const useTokenCalculations = () => {
   const [estimatedTokens, setEstimatedTokens] = useState<string>('0');
@@ -9,7 +8,7 @@ export const useTokenCalculations = () => {
   const { getContract } = useContract();
 
   const calculateTokenAmount = useCallback(async (amount: string, paymentMethod: 'eth' | 'usdt') => {
-    if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
+    if (!amount || isNaN(Number(amount))) {
       setEstimatedTokens('0');
       return;
     }
@@ -22,7 +21,7 @@ export const useTokenCalculations = () => {
         const valueInWei = parseEther(amount);
         tokens = await contract.GetAmountOfTokenForETH(valueInWei);
       } else {
-        const valueInWei = parseUnits(amount, 6); // USDT uses 6 decimals
+        const valueInWei = parseUnits(amount, 6);
         tokens = await contract.GetAmountOfTokenForUSDT(valueInWei);
       }
 
@@ -32,42 +31,38 @@ export const useTokenCalculations = () => {
     } catch (error) {
       console.error("Error calculating token amount:", error);
       setEstimatedTokens('0');
-      toast({
-        variant: "destructive",
-        title: "Calculation Error",
-        description: "Failed to calculate token amount. Please try a different amount."
-      });
     }
   }, [getContract]);
 
   const calculatePaymentAmount = useCallback(async (tokenAmount: string, paymentMethod: 'eth' | 'usdt') => {
-    if (!tokenAmount || isNaN(Number(tokenAmount)) || Number(tokenAmount) <= 0) {
+    if (!tokenAmount || isNaN(Number(tokenAmount))) {
       setEstimatedPaymentAmount('0');
       return;
     }
 
     try {
       const contract = await getContract();
-      const tokenPriceUSDT = await contract.tokenPriceUSDTinWei();
-      
+      const tokenAmountWei = parseUnits(tokenAmount, 18);
+      let paymentAmount;
+
       if (paymentMethod === 'eth') {
-        const priceInETH = await contract.GetTokenPriceInWeiForETH(tokenPriceUSDT);
-        const ethAmount = (Number(priceInETH) * Number(tokenAmount)) / 10**18;
+        // Get token price in USDT first
+        const tokenPriceUSDT = await contract.tokenPriceUSDTinWei();
+        // Convert USDT price to ETH
+        paymentAmount = await contract.GetTokenPriceInWeiForETH(tokenPriceUSDT);
+        // Calculate final amount
+        const ethAmount = (Number(paymentAmount) * Number(tokenAmount)) / 10**18;
         setEstimatedPaymentAmount(ethAmount.toString());
       } else {
+        // For USDT, we can use the direct token price
+        const tokenPriceUSDT = await contract.tokenPriceUSDTinWei();
         const usdtAmount = (Number(tokenPriceUSDT) * Number(tokenAmount)) / 10**6;
         setEstimatedPaymentAmount(usdtAmount.toString());
       }
-      
       setEstimatedTokens('');
     } catch (error) {
       console.error("Error calculating payment amount:", error);
       setEstimatedPaymentAmount('0');
-      toast({
-        variant: "destructive",
-        title: "Calculation Error",
-        description: "Failed to calculate payment amount. Please try a different amount."
-      });
     }
   }, [getContract]);
 
