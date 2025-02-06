@@ -60,13 +60,13 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 flex items-start justify-start p-8">
-      <div className="max-w-4xl w-full space-y-8 ml-12">
-        <div className="text-left">
-          <h1 className="text-4xl font-bold text-indigo-900 mb-2">Web3 DApp</h1>
-          <p className="text-indigo-600">Connect your wallet and purchase tokens</p>
+    <div className="min-h-screen bg-[#1A1F2C] text-gray-100 flex items-start justify-start p-8">
+      <div className="max-w-4xl w-full space-y-8 mx-auto">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold text-white mb-2">Web3 Token Sale</h1>
+          <p className="text-gray-400">Connect your wallet to participate in the token sale</p>
           {tokenPrice && (
-            <p className="text-lg font-semibold text-green-600 mt-2">
+            <p className="text-lg font-semibold text-indigo-400 mt-2">
               Token Price: ${tokenPrice} USDT
             </p>
           )}
@@ -75,10 +75,10 @@ const Index = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <ICOStatus />
 
-          <div className="bg-white bg-opacity-80 backdrop-blur-sm rounded-xl shadow-lg p-6 space-y-6">
+          <div className="bg-[#222222]/80 backdrop-blur-lg rounded-xl shadow-xl border border-gray-800 p-6 space-y-6">
             {!account ? (
               <Button
-                className="w-full bg-indigo-600 hover:bg-indigo-700"
+                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
                 onClick={connect}
                 disabled={isConnecting}
               >
@@ -93,38 +93,38 @@ const Index = () => {
               </Button>
             ) : (
               <div className="space-y-6">
-                <div className="p-4 bg-indigo-50 rounded-lg">
-                  <p className="text-sm text-indigo-600">Connected Account:</p>
-                  <p className="font-mono text-sm truncate">{account}</p>
+                <div className="p-4 bg-[#2A2A2A] rounded-lg border border-gray-700">
+                  <p className="text-sm text-gray-400">Connected Account:</p>
+                  <p className="font-mono text-sm text-indigo-400 truncate">{account}</p>
                 </div>
                 
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="amount">Payment Amount ({paymentMethod.toUpperCase()})</Label>
+                    <Label htmlFor="amount" className="text-gray-300">Payment Amount ({paymentMethod.toUpperCase()})</Label>
                     <Input
                       id="amount"
                       type="text"
                       placeholder={`Enter amount in ${paymentMethod.toUpperCase()}`}
                       value={calculationMode === "payment" ? amount : estimatedPaymentAmount}
                       onChange={handleAmountChange}
-                      className="mt-1"
+                      className="mt-1 bg-[#2A2A2A] border-gray-700 text-white placeholder:text-gray-500"
                     />
                   </div>
 
                   <div>
-                    <Label htmlFor="tokenAmount">Token Amount</Label>
+                    <Label htmlFor="tokenAmount" className="text-gray-300">Token Amount</Label>
                     <Input
                       id="tokenAmount"
                       type="text"
                       placeholder="Enter token amount"
                       value={calculationMode === "token" ? tokenAmount : estimatedTokens}
                       onChange={handleTokenAmountChange}
-                      className="mt-1"
+                      className="mt-1 bg-[#2A2A2A] border-gray-700 text-white placeholder:text-gray-500"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label>Payment Method</Label>
+                    <Label className="text-gray-300">Payment Method</Label>
                     <RadioGroup
                       value={paymentMethod}
                       onValueChange={setPaymentMethod}
@@ -132,17 +132,17 @@ const Index = () => {
                     >
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="eth" id="eth" />
-                        <Label htmlFor="eth">ETH</Label>
+                        <Label htmlFor="eth" className="text-gray-300">ETH</Label>
                       </div>
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="usdt" id="usdt" />
-                        <Label htmlFor="usdt">USDT</Label>
+                        <Label htmlFor="usdt" className="text-gray-300">USDT</Label>
                       </div>
                     </RadioGroup>
                   </div>
 
                   <Button
-                    className="w-full bg-indigo-600 hover:bg-indigo-700"
+                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
                     onClick={handlePurchase}
                     disabled={isLoading || (!amount && !tokenAmount)}
                   >
@@ -159,7 +159,7 @@ const Index = () => {
 
                 <Button
                   variant="outline"
-                  className="w-full border-indigo-200 hover:bg-indigo-50"
+                  className="w-full border-gray-700 hover:bg-gray-800 text-gray-300"
                   onClick={disconnect}
                 >
                   Disconnect
