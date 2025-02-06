@@ -48,19 +48,17 @@ export const useTokenCalculations = () => {
 
     try {
       const contract = await getContract();
-      let paymentAmount;
+      const tokenPriceUSDT = await contract.tokenPriceUSDTinWei();
       
       if (paymentMethod === 'eth') {
-        const tokenAmountWei = parseUnits(tokenAmount, 18);
-        const ethAmount = await contract.GetETHforExactToken(tokenAmountWei);
-        paymentAmount = Number(ethAmount) / 10**18;
+        const priceInETH = await contract.GetTokenPriceInWeiForETH(tokenPriceUSDT);
+        const ethAmount = (Number(priceInETH) * Number(tokenAmount)) / 10**18;
+        setEstimatedPaymentAmount(ethAmount.toString());
       } else {
-        const tokenAmountWei = parseUnits(tokenAmount, 18);
-        const usdtAmount = await contract.GetUSDTforExactToken(tokenAmountWei);
-        paymentAmount = Number(usdtAmount) / 10**6;
+        const usdtAmount = (Number(tokenPriceUSDT) * Number(tokenAmount)) / 10**6;
+        setEstimatedPaymentAmount(usdtAmount.toString());
       }
       
-      setEstimatedPaymentAmount(paymentAmount.toString());
       setEstimatedTokens('');
     } catch (error) {
       console.error("Error calculating payment amount:", error);
