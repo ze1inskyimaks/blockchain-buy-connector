@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from 'react';
 import { parseEther, parseUnits } from 'ethers';
 import { useContract } from './useContract';
@@ -20,10 +21,10 @@ export const useTokenCalculations = () => {
 
       if (paymentMethod === 'eth') {
         const valueInWei = parseEther(amount);
-        tokens = await contract.GetAmountOfTokenForETH(valueInWei);
+        tokens = await contract.getAmountOfTokenForETH(valueInWei);
       } else {
         const valueInWei = parseUnits(amount, 6); // USDT uses 6 decimals
-        tokens = await contract.GetAmountOfTokenForUSDT(valueInWei);
+        tokens = await contract.getAmountOfTokenForUSDT(valueInWei);
       }
 
       const estimatedAmount = Number(tokens) / 10**18;
@@ -48,15 +49,16 @@ export const useTokenCalculations = () => {
 
     try {
       const contract = await getContract();
-      const tokenPriceUSDT = await contract.tokenPriceUSDTinWei();
-      
+      const tokenAmountInWei = parseUnits(tokenAmount, 18);
+
       if (paymentMethod === 'eth') {
-        const priceInETH = await contract.GetTokenPriceInWeiForETH(tokenPriceUSDT);
-        const ethAmount = (Number(priceInETH) * Number(tokenAmount)) / 10**18;
-        setEstimatedPaymentAmount(ethAmount.toString());
+        const ethAmount = await contract.getAmountOfETHForToken(tokenAmountInWei);
+        const estimatedEth = Number(ethAmount) / 10**18;
+        setEstimatedPaymentAmount(estimatedEth.toString());
       } else {
-        const usdtAmount = (Number(tokenPriceUSDT) * Number(tokenAmount)) / 10**6;
-        setEstimatedPaymentAmount(usdtAmount.toString());
+        const usdtAmount = await contract.getAmountOfUSDTForToken(tokenAmountInWei);
+        const estimatedUsdt = Number(usdtAmount) / 10**6;
+        setEstimatedPaymentAmount(estimatedUsdt.toString());
       }
       
       setEstimatedTokens('');
